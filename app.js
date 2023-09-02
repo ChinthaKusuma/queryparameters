@@ -5,6 +5,7 @@ const path = require("path");
 const dbPath = path.join(__dirname, "todoApplication.db");
 const sqlite3 = require("sqlite3");
 let db = null;
+app.use(express.json());
 
 const status1 = (requestQuery) => {
   return requestQuery.status != undefined;
@@ -56,6 +57,21 @@ const initiliazeDbAndServer = async () => {
       }
       dbResponse = await db.all(query);
       response.send(dbResponse);
+    });
+    app.get("/todos/:todoId/", async (request, response) => {
+      const { todoId } = request.params;
+      const query2 = `select * from todo where id=${todoId};`;
+      const dbResponse2 = await db.get(query2);
+      response.send(dbResponse2);
+    });
+    app.post("/todos/", async (request, response) => {
+      const todoDetails = request.query;
+      const { todo, priority, status } = todoDetails;
+      const query3 = `insert into todo(todo,priority,status)
+      values('${todo}','${priority}','${status}');`;
+
+      response.send("Todo Successfully Added");
+      const dbResponse3 = await db.run(query3);
     });
   } catch (e) {
     console.log("Db error");
